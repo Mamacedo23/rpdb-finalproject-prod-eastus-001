@@ -45,7 +45,7 @@ resources:
         - job_cluster_key: cluster_etl_compras
           new_cluster:
             spark_version: 15.4.x-scala2.12
-            node_type_id: Standard_DS3_v2
+            node_type_id: Standard_D4s_v3
             num_workers: 2
             data_security_mode: SINGLE_USER
             single_user_name: df841712-a37a-4123-a404-ae196e53460f
