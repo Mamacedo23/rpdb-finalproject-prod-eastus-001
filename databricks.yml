@@ -8,7 +8,6 @@ variables:
 targets:
   dev:
     mode: development
-    default: true
     workspace:
       host: https://adb-7405612636931209.9.azuredatabricks.net
     variables:
