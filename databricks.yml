@@ -36,7 +36,7 @@ resources:
         service_principal_name: df841712-a37a-4123-a404-ae196e53460f
 
       performance_target: PERFORMANCE_OPTIMIZED
-      
+    
       tasks:
         - task_key: bronze_layer
           existing_cluster_id: ${var.cluster_id}
