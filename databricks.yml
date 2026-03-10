@@ -17,7 +17,7 @@ targets:
   prod:
     mode: production
     workspace:
-      host: https://wsdb-finalproject-prod-eastus-001.azuredatabricks.net
+      host: https://adb-7405612536710406.6.azuredatabricks.net
     variables:
       cluster_id: 0301-020814-5djh8vxe
 
