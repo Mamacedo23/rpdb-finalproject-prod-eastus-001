@@ -62,6 +62,12 @@ jobs:
         run: |
           databricks repos update "${{ env.REPO_PATH }}" \
             --branch "${{ steps.extract_branch_prod.outputs.branch }}"
+        env:
+          DATABRICKS_HOST: ${{ secrets.PROD_DEPLOYMENT_TARGET_URL }}
+          DATABRICKS_TOKEN: ${{ secrets.PROD_DEPLOYMENT_TARGET_TOKEN }}
       - name: Deploy Bundle (Prod)
         run: |
           databricks bundle deploy --target prod
+        env:
+          DATABRICKS_HOST: ${{ secrets.PROD_DEPLOYMENT_TARGET_URL }}
+          DATABRICKS_TOKEN: ${{ secrets.PROD_DEPLOYMENT_TARGET_TOKEN }}
