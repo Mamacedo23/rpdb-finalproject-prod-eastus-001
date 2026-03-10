@@ -1,63 +1,131 @@
-name: main
-on:
-  push:
-    paths-ignore:
-      - .github/**
-    branches:
-      - main
+bundle:
+  name: pipeline_etl_compras
 
-jobs:
-  deploy-dev:
-    runs-on: ubuntu-latest
-    environment: development
-    env:
-      DATABRICKS_HOST: ${{ secrets.DEV_DEPLOYMENT_TARGET_URL }}
-      DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOYMENT_TARGET_TOKEN }}
-      REPO_PATH: /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.8
-      - name: Set up Databricks CLI
-        uses: databricks/setup-cli@main
-      - name: Extract branch name
-        id: extract_branch
-        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
-      - name: Update Databricks Repo (Dev)
-        run: |
-          databricks repos update "${{ env.REPO_PATH }}" \
-          --branch "${{ steps.extract_branch.outputs.branch }}"
-      - name: Deploy Bundle (Dev)
-        run: |
-          databricks bundle deploy --target dev
+variables:
+  cluster_id:
+    description: Cluster ID a usar segun el entorno
+    
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://wsdb-finalproject-dev-eastus-001.azuredatabricks.net
+    variables:
+      cluster_id: 0304-192558-zbwvycv6
 
-  deploy-prod:
-    needs: deploy-dev
-    runs-on: ubuntu-latest
-    environment: production
-    env:
-      DATABRICKS_HOST: ${{ secrets.PROD_DEPLOYMENT_TARGET_URL }}
-      DATABRICKS_TOKEN: ${{ secrets.PROD_DEPLOYMENT_TARGET_TOKEN }}
-      REPO_PATH: /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/folderrpdb-finalproject-prod-eastus-001
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
-      - name: Set up Python
-        uses: actions/setup-python@v3
-        with:
-          python-version: 3.8
-      - name: Set up Databricks CLI
-        uses: databricks/setup-cli@main
-      - name: Extract branch name
-        id: extract_branch_prod
-        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
-      - name: Update Databricks Repo (Prod)
-        run: |
-          databricks repos update "${{ env.REPO_PATH }}" \
-            --branch "${{ steps.extract_branch_prod.outputs.branch }}"
-      - name: Deploy Bundle (Prod)
-        run: |
-          databricks bundle deploy --target prod
+  prod:
+    mode: production
+    workspace:
+      host: https://wsdb-finalproject-prod-eastus-001.azuredatabricks.net
+    variables:
+      cluster_id: 0301-020814-5djh8vxe
+
+resources:
+  jobs:
+    pipeline_etl_compras:
+      name: pipeline_etl_compras
+
+      schedule:
+        quartz_cron_expression: "0 0 8 * * ?"
+        timezone_id: "America/Lima"
+        
+      queue:
+        enabled: true
+
+      run_as:
+        service_principal_name: df841712-a37a-4123-a404-ae196e53460f
+
+      performance_target: PERFORMANCE_OPTIMIZED
+
+      tasks:
+        - task_key: bronze_layer
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ./bronze_carga_diaria
+            source: WORKSPACE
+
+        - task_key: bronze_calidad
+          depends_on:
+            - task_key: bronze_layer
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ./bronze_calidad
+            source: WORKSPACE
+
+        - task_key: validacion_calidad_bl
+          depends_on:
+            - task_key: bronze_calidad
+          condition_task:
+            op: EQUAL_TO
+            left: "{{tasks.bronze_calidad.values.estado}}"
+            right: "Validación Exitosa"
+
+        - task_key: silver_layer
+          depends_on:
+            - task_key: validacion_calidad_bl
+              outcome: "true"
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ./silver_layer
+            source: WORKSPACE
+
+        - task_key: calidad_silver_layer
+          depends_on:
+            - task_key: silver_layer
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ./silver_caldiad
+            source: WORKSPACE
+
+        - task_key: correo_calidad_bronze
+          depends_on:
+            - task_key: validacion_calidad_bl
+              outcome: "false"
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ./correos/Notificar Problemas Calidad
+            source: WORKSPACE
+
+        - task_key: validar_calidad_silver
+          depends_on:
+            - task_key: calidad_silver_layer
+          condition_task:
+            op: EQUAL_TO
+            left: "{{tasks.calidad_silver_layer.values.estado}}"
+            right: "Validación Exitosa"
+
+        - task_key: gold_layer
+          depends_on:
+            - task_key: validar_calidad_silver
+              outcome: "true"
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ./gold_layer
+            source: WORKSPACE
+
+        - task_key: enviar_correo_error
+          depends_on:
+            - task_key: gold_layer
+          run_if: AT_LEAST_ONE_FAILED
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ./correos/Notificar Problemas Calidad
+            source: WORKSPACE
+
+        - task_key: correo_calidad_silver
+          depends_on:
+            - task_key: validar_calidad_silver
+              outcome: "false"
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ./correos/Notificar Problemas Calidad
+            source: WORKSPACE
+
+        - task_key: enviar_correo_success
+          depends_on:
+            - task_key: gold_layer
+          existing_cluster_id: ${var.cluster_id}
+          notebook_task:
+            notebook_path: ./correos/Notificar Ejecucion Exitosa
+            source: WORKSPACE
