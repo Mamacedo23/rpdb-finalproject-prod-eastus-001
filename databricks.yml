@@ -6,6 +6,8 @@ variables:
     description: Cuenta ADLS según retorno
   adls_container:
     description: Contenedor ADLS según retorno
+  catalog_name:
+    description: Catálogo de Unity Catalog según entorno
     
 targets:
   dev:
@@ -15,6 +17,7 @@ targets:
     variables:
       adls_account_name: safinalproject
       adls_container: raw-data-prueba
+      catalog_name: finalproject
   
   prod:
     mode: production
@@ -23,6 +26,7 @@ targets:
     variables:
       adls_account_name: safinalproject
       adls_container: raw-data
+      catalog_name: finalproject_prod
 
 resources:
   jobs:
@@ -59,6 +63,7 @@ resources:
             base_parameters:
               adls_account_name: ${var.adls_account_name}
               adls_container: ${var.adls_container}
+              catalog_name: ${var.catalog_name}
             
         - task_key: bronze_calidad
           depends_on:
@@ -67,6 +72,8 @@ resources:
           notebook_task:
             notebook_path: ./bronze_calidad.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
 
         - task_key: validacion_calidad_bl
           depends_on:
@@ -84,6 +91,8 @@ resources:
           notebook_task:
             notebook_path: ./silver_layer.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
 
         - task_key: calidad_silver_layer
           depends_on:
@@ -92,6 +101,8 @@ resources:
           notebook_task:
             notebook_path: ./silver_caldiad.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
 
         - task_key: correo_calidad_bronze
           depends_on:
@@ -102,7 +113,7 @@ resources:
             notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
             base_parameters:
-              lista_detalle: "{{tasks.validacion_calidad_bl.values.detalle}}"
+              lista_detalle: "{{tasks.bronze_calidad.values.detalle}}"
 
         - task_key: validar_calidad_silver
           depends_on:
@@ -120,6 +131,8 @@ resources:
           notebook_task:
             notebook_path: ./gold_layer.ipynb
             source: WORKSPACE
+            base_parameters:
+              catalog_name: ${var.catalog_name}
 
         - task_key: enviar_correo_error
           depends_on:
@@ -139,7 +152,7 @@ resources:
             notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
             base_parameters:
-              lista_detalle: "{{tasks.validar_calidad_silver.values.detalle}}"
+              lista_detalle: "{{tasks.calidad_silver_layer.values.detalle}}"
 
         - task_key: enviar_correo_success
           depends_on:
