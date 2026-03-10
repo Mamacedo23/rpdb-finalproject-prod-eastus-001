@@ -23,10 +23,10 @@ jobs:
         uses: databricks/setup-cli@main
       - name: Sync notebooks to Workspace (Dev)
         run: |
-          databricks workspace upload --recursive \
-            --overwrite \
+          databricks workspace import-dir \
             . \
-            /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001
+            /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001 \
+            --overwrite
       - name: Deploy Bundle (Dev)
         run: databricks bundle deploy --target dev
 
@@ -48,9 +48,9 @@ jobs:
         uses: databricks/setup-cli@main
       - name: Sync notebooks to Workspace (Prod)
         run: |
-          databricks workspace upload --recursive \
-            --overwrite \
+          databricks workspace import-dir \
             . \
-            /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-prod-eastus-001
+            /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-prod-eastus-001 \
+            --overwrite
       - name: Deploy Bundle (Prod)
         run: databricks bundle deploy --target prod
