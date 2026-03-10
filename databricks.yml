@@ -55,7 +55,6 @@ resources:
             base_parameters:
               adls_account_name: ${var.adls_account_name}
               adls_container: ${var.adls_container}
-              mongo_connection_string: ${var.mongo_connection_string}
             
         - task_key: bronze_calidad
           depends_on:
