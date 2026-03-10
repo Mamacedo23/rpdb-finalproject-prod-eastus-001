@@ -23,9 +23,15 @@ jobs:
 
       - name: Pull Git Folder (Dev)
         run: |
-          REPO_ID=$(databricks repos list --output json | \
-            jq -r '.[] | select(.path=="/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001") | .id')
-          databricks repos update $REPO_ID --branch main
+          REPO_ID=$(curl -s -X GET \
+            "$DATABRICKS_HOST/api/2.0/repos" \
+            -H "Authorization: Bearer $DATABRICKS_TOKEN" | \
+            jq -r '.repos[] | select(.path=="/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001") | .id')
+          curl -s -X PATCH \
+            "$DATABRICKS_HOST/api/2.0/repos/$REPO_ID" \
+            -H "Authorization: Bearer $DATABRICKS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"branch": "main"}'
 
       - name: Deploy Bundle (Dev)
         run: databricks bundle deploy --target dev
@@ -46,9 +52,15 @@ jobs:
 
       - name: Pull Git Folder (Prod)
         run: |
-          REPO_ID=$(databricks repos list --output json | \
-            jq -r '.[] | select(.path=="/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/folderrpdb-finalproject-prod-eastus-001") | .id')
-          databricks repos update $REPO_ID --branch main
+          REPO_ID=$(curl -s -X GET \
+            "$DATABRICKS_HOST/api/2.0/repos" \
+            -H "Authorization: Bearer $DATABRICKS_TOKEN" | \
+            jq -r '.repos[] | select(.path=="/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/folderrpdb-finalproject-prod-eastus-001") | .id')
+          curl -s -X PATCH \
+            "$DATABRICKS_HOST/api/2.0/repos/$REPO_ID" \
+            -H "Authorization: Bearer $DATABRICKS_TOKEN" \
+            -H "Content-Type: application/json" \
+            -d '{"branch": "main"}'
 
       - name: Deploy Bundle (Prod)
         run: databricks bundle deploy --target prod
