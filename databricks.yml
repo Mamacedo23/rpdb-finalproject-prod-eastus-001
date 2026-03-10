@@ -120,7 +120,7 @@ resources:
           notebook_task:
             notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
-
+            
         - task_key: enviar_correo_success
           depends_on:
             - task_key: gold_layer
