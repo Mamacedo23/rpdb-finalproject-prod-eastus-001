@@ -21,6 +21,12 @@ jobs:
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
 
+      - name: Pull Git Folder (Dev)
+        run: |
+          databricks repos update \
+            --path /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001 \
+            --branch main
+
       - name: Deploy Bundle (Dev)
         run: databricks bundle deploy --target dev
 
@@ -37,6 +43,12 @@ jobs:
 
       - name: Install Databricks CLI
         uses: databricks/setup-cli@main
+
+      - name: Pull Git Folder (Prod)
+        run: |
+          databricks repos update \
+            --path /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/folderrpdb-finalproject-prod-eastus-001 \
+            --branch main
 
       - name: Deploy Bundle (Prod)
         run: databricks bundle deploy --target prod
