@@ -23,9 +23,9 @@ jobs:
 
       - name: Pull Git Folder (Dev)
         run: |
-          databricks repos update \
-            /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001 \
-            --branch main
+          REPO_ID=$(databricks repos list --output json | \
+            jq -r '.[] | select(.path=="/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001") | .id')
+          databricks repos update $REPO_ID --branch main
 
       - name: Deploy Bundle (Dev)
         run: databricks bundle deploy --target dev
@@ -46,9 +46,9 @@ jobs:
 
       - name: Pull Git Folder (Prod)
         run: |
-          databricks repos update \
-            /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/folderrpdb-finalproject-prod-eastus-001 \
-            --branch main
+          REPO_ID=$(databricks repos list --output json | \
+            jq -r '.[] | select(.path=="/Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/folderrpdb-finalproject-prod-eastus-001") | .id')
+          databricks repos update $REPO_ID --branch main
 
       - name: Deploy Bundle (Prod)
         run: databricks bundle deploy --target prod
