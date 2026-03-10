@@ -15,18 +15,25 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: 3.8
-      - name: Set up Databricks CLI
+
+      - name: Install legacy Databricks CLI
+        run: pip install databricks-cli
+
+      - name: Install new Databricks CLI
         uses: databricks/setup-cli@main
+
       - name: Sync notebooks to Workspace (Dev)
         run: |
-          databricks workspace import-dir \
+          databricks-cli workspace import-dir \
+            --overwrite \
             . \
-            /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001 \
-            --overwrite
+            /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001
+
       - name: Deploy Bundle (Dev)
         run: databricks bundle deploy --target dev
 
@@ -40,17 +47,24 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Set up Python
         uses: actions/setup-python@v3
         with:
           python-version: 3.8
-      - name: Set up Databricks CLI
+
+      - name: Install legacy Databricks CLI
+        run: pip install databricks-cli
+
+      - name: Install new Databricks CLI
         uses: databricks/setup-cli@main
+
       - name: Sync notebooks to Workspace (Prod)
         run: |
-          databricks workspace import-dir \
+          databricks-cli workspace import-dir \
+            --overwrite \
             . \
-            /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-prod-eastus-001 \
-            --overwrite
+            /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-prod-eastus-001
+
       - name: Deploy Bundle (Prod)
         run: databricks bundle deploy --target prod
