@@ -101,6 +101,8 @@ resources:
           notebook_task:
             notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
+            base_parameters:
+              lista_detalle: "{{tasks.validacion_calidad_bl.values.detalle}}"
 
         - task_key: validar_calidad_silver
           depends_on:
@@ -136,6 +138,8 @@ resources:
           notebook_task:
             notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
+            base_parameters:
+              lista_detalle: "{{tasks.validar_calidad_silver.values.detalle}}"
 
         - task_key: enviar_correo_success
           depends_on:
