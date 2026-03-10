@@ -22,6 +22,12 @@ jobs:
           python-version: 3.8
       - name: Set up Databricks CLI
         uses: databricks/setup-cli@main
+      - name: Sync notebooks to Workspace (Dev)
+        run: |
+          databricks workspace import-dir .\
+            /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001 \
+            --overwrite
+        
       - name: Deploy Bundle (Dev)
         run: databricks bundle deploy --target dev
 
