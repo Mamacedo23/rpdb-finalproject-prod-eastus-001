@@ -54,6 +54,10 @@ jobs:
       - name: Extract branch name
         id: extract_branch_prod
         run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
+      - name: Debug credentials
+        run: |
+          echo "HOST: $DATABRICKS_HOST"
+          databricks auth describe
       - name: Update Databricks Repo (Prod)
         run: |
           databricks repos update "${{ env.REPO_PATH }}" \
