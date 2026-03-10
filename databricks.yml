@@ -23,7 +23,7 @@ targets:
     mode: production
     workspace:
       host: https://adb-7405612536710406.6.azuredatabricks.net
-      root_path: /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/.bundle/${bundle.name}/${bundle.target}
+      # Sin root_path hardcodeado - Databricks lo maneja automáticamente
     variables:
       cluster_id: 0301-020814-5djh8vxe
       adls_account_name: 'safinalproject'
