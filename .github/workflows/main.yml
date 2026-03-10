@@ -59,7 +59,7 @@ jobs:
       - name: Update Databricks Repo (Dev)
         run: |
           databricks repos update "${{ env.REPO_PATH }}" \
-            --branch "${{ steps.extract_branch.outputs.branch }}"
+            --branch "${{ steps.extract_branch_prod.outputs.branch }}"
         env:
           DATABRICKS_HOST: ${{ secrets.DEV_DEPLOYMENT_TARGET_URL }}
           DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOYMENT_TARGET_TOKEN }}
