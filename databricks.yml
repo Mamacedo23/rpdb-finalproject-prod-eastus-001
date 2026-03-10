@@ -44,7 +44,7 @@ resources:
           notebook_task:
             notebook_path: ./bronze_carga_diaria.ipynb
             source: WORKSPACE
-
+            
         - task_key: bronze_calidad
           depends_on:
             - task_key: bronze_layer
