@@ -42,7 +42,7 @@ resources:
         - task_key: bronze_layer
           existing_cluster_id: ${var.cluster_id}
           notebook_task:
-            notebook_path: ./bronze_carga_diaria
+            notebook_path: ./bronze_carga_diaria.ipynb
             source: WORKSPACE
 
         - task_key: bronze_calidad
@@ -50,7 +50,7 @@ resources:
             - task_key: bronze_layer
           existing_cluster_id: ${var.cluster_id}
           notebook_task:
-            notebook_path: ./bronze_calidad
+            notebook_path: ./bronze_calidad.ipynb
             source: WORKSPACE
 
         - task_key: validacion_calidad_bl
@@ -67,7 +67,7 @@ resources:
               outcome: "true"
           existing_cluster_id: ${var.cluster_id}
           notebook_task:
-            notebook_path: ./silver_layer
+            notebook_path: ./silver_layer.ipynb
             source: WORKSPACE
 
         - task_key: calidad_silver_layer
@@ -75,7 +75,7 @@ resources:
             - task_key: silver_layer
           existing_cluster_id: ${var.cluster_id}
           notebook_task:
-            notebook_path: ./silver_caldiad
+            notebook_path: ./silver_caldiad.ipynb
             source: WORKSPACE
 
         - task_key: correo_calidad_bronze
@@ -84,7 +84,7 @@ resources:
               outcome: "false"
           existing_cluster_id: ${var.cluster_id}
           notebook_task:
-            notebook_path: ./correos/Notificar Problemas Calidad
+            notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
 
         - task_key: validar_calidad_silver
@@ -101,7 +101,7 @@ resources:
               outcome: "true"
           existing_cluster_id: ${var.cluster_id}
           notebook_task:
-            notebook_path: ./gold_layer
+            notebook_path: ./gold_layer.ipynb
             source: WORKSPACE
 
         - task_key: enviar_correo_error
@@ -110,7 +110,7 @@ resources:
           run_if: AT_LEAST_ONE_FAILED
           existing_cluster_id: ${var.cluster_id}
           notebook_task:
-            notebook_path: ./correos/Notificar Problemas Calidad
+            notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
 
         - task_key: correo_calidad_silver
@@ -119,7 +119,7 @@ resources:
               outcome: "false"
           existing_cluster_id: ${var.cluster_id}
           notebook_task:
-            notebook_path: ./correos/Notificar Problemas Calidad
+            notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
 
         - task_key: enviar_correo_success
@@ -127,5 +127,5 @@ resources:
             - task_key: gold_layer
           existing_cluster_id: ${var.cluster_id}
           notebook_task:
-            notebook_path: ./correos/Notificar Ejecucion Exitosa
+            notebook_path: ./correos/Notificar Ejecucion Exitosa.ipynb
             source: WORKSPACE
