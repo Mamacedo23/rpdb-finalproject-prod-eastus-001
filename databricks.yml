@@ -4,6 +4,12 @@ bundle:
 variables:
   cluster_id:
     description: Cluster ID a usar segun el entorno
+  adls_account_name:
+    description: Cuenta ADLS según retorno
+  adls_container:
+    description: Contenedor ADLS según retorno
+  mongo_connection_string:
+    description: Connection string de MongoDB según retorno
     
 targets:
   dev:
@@ -12,13 +18,20 @@ targets:
       host: https://adb-7405612636931209.9.azuredatabricks.net
     variables:
       cluster_id: 0304-192558-zbwvycv6
+      adls_account_name: 'safinalproject'
+      adls_container: 'raw-data-prueba'
+      mongo_connection_string: 'mongodb+srv://kevin_user:fuegopantanoso20@cluster0.iyakyil.mongodb.net'
   
   prod:
     mode: production
     workspace:
       host: https://adb-7405612536710406.6.azuredatabricks.net
+      root_path: /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/.bundle/${bundle.name}/${bundle.target}
     variables:
       cluster_id: 0301-020814-5djh8vxe
+      adls_account_name: 'safinalproject'
+      adls_container: 'raw-data'
+      mongo_connection_string: 'mongodb+srv://kevin_user:fuegopantanoso20@cluster0.iyakyil.mongodb.net'
 
 resources:
   jobs:
@@ -43,6 +56,10 @@ resources:
           notebook_task:
             notebook_path: ./bronze_carga_diaria.ipynb
             source: WORKSPACE
+            base_parameters:
+              adls_account_name: ${var.adls_account_name}
+              adls_container: ${var.adls_container}
+              mongo_connection_string: ${var.mongo_connection_string}
             
         - task_key: bronze_calidad
           depends_on:
