@@ -2,8 +2,6 @@ bundle:
   name: pipeline_etl_compras
   
 variables:
-  cluster_id:
-    description: Cluster ID a usar segun el entorno
   adls_account_name:
     description: Cuenta ADLS según retorno
   adls_container:
@@ -15,19 +13,16 @@ targets:
     workspace:
       host: https://adb-7405612636931209.9.azuredatabricks.net
     variables:
-      cluster_id: 0304-192558-zbwvycv6
-      adls_account_name: 'safinalproject'
-      adls_container: 'raw-data-prueba'
+      adls_account_name: safinalproject
+      adls_container: raw-data-prueba
   
   prod:
     mode: production
     workspace:
       host: https://adb-7405612536710406.6.azuredatabricks.net
-      # Sin root_path hardcodeado - Databricks lo maneja automáticamente
     variables:
-      cluster_id: 0301-020814-5djh8vxe
-      adls_account_name: 'safinalproject'
-      adls_container: 'raw-data'
+      adls_account_name: safinalproject
+      adls_container: raw-data
 
 resources:
   jobs:
@@ -36,7 +31,7 @@ resources:
 
       schedule:
         quartz_cron_expression: "0 0 8 * * ?"
-        timezone_id: "America/Lima"
+        timezone_id: America/Lima
         
       queue:
         enabled: true
@@ -45,10 +40,19 @@ resources:
         service_principal_name: df841712-a37a-4123-a404-ae196e53460f
 
       performance_target: PERFORMANCE_OPTIMIZED
+
+      job_clusters:
+        - job_cluster_key: cluster_etl_compras
+          new_cluster:
+            spark_version: 15.4.x-scala2.12
+            node_type_id: Standard_DS3_v2
+            num_workers: 2
+            data_security_mode: SINGLE_USER
+            single_user_name: df841712-a37a-4123-a404-ae196e53460f
     
       tasks:
         - task_key: bronze_layer
-          existing_cluster_id: ${var.cluster_id}
+          job_cluster_key: cluster_etl_compras
           notebook_task:
             notebook_path: ./bronze_carga_diaria.ipynb
             source: WORKSPACE
@@ -59,7 +63,7 @@ resources:
         - task_key: bronze_calidad
           depends_on:
             - task_key: bronze_layer
-          existing_cluster_id: ${var.cluster_id}
+          job_cluster_key: cluster_etl_compras
           notebook_task:
             notebook_path: ./bronze_calidad.ipynb
             source: WORKSPACE
@@ -76,7 +80,7 @@ resources:
           depends_on:
             - task_key: validacion_calidad_bl
               outcome: "true"
-          existing_cluster_id: ${var.cluster_id}
+          job_cluster_key: cluster_etl_compras
           notebook_task:
             notebook_path: ./silver_layer.ipynb
             source: WORKSPACE
@@ -84,7 +88,7 @@ resources:
         - task_key: calidad_silver_layer
           depends_on:
             - task_key: silver_layer
-          existing_cluster_id: ${var.cluster_id}
+          job_cluster_key: cluster_etl_compras
           notebook_task:
             notebook_path: ./silver_caldiad.ipynb
             source: WORKSPACE
@@ -93,7 +97,7 @@ resources:
           depends_on:
             - task_key: validacion_calidad_bl
               outcome: "false"
-          existing_cluster_id: ${var.cluster_id}
+          job_cluster_key: cluster_etl_compras
           notebook_task:
             notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
@@ -110,7 +114,7 @@ resources:
           depends_on:
             - task_key: validar_calidad_silver
               outcome: "true"
-          existing_cluster_id: ${var.cluster_id}
+          job_cluster_key: cluster_etl_compras
           notebook_task:
             notebook_path: ./gold_layer.ipynb
             source: WORKSPACE
@@ -119,7 +123,7 @@ resources:
           depends_on:
             - task_key: gold_layer
           run_if: AT_LEAST_ONE_FAILED
-          existing_cluster_id: ${var.cluster_id}
+          job_cluster_key: cluster_etl_compras
           notebook_task:
             notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
@@ -128,7 +132,7 @@ resources:
           depends_on:
             - task_key: validar_calidad_silver
               outcome: "false"
-          existing_cluster_id: ${var.cluster_id}
+          job_cluster_key: cluster_etl_compras
           notebook_task:
             notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
@@ -136,7 +140,7 @@ resources:
         - task_key: enviar_correo_success
           depends_on:
             - task_key: gold_layer
-          existing_cluster_id: ${var.cluster_id}
+          job_cluster_key: cluster_etl_compras
           notebook_task:
             notebook_path: ./correos/Notificar Ejecucion Exitosa.ipynb
             source: WORKSPACE
