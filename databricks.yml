@@ -12,7 +12,7 @@ targets:
       host: https://adb-7405612636931209.9.azuredatabricks.net
     variables:
       cluster_id: 0304-192558-zbwvycv6
-      
+  
   prod:
     mode: production
     workspace:
