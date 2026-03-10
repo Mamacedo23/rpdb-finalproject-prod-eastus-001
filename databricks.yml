@@ -112,7 +112,7 @@ resources:
           notebook_task:
             notebook_path: ./correos/Notificar Problemas Calidad.ipynb
             source: WORKSPACE
-
+            
         - task_key: correo_calidad_silver
           depends_on:
             - task_key: validar_calidad_silver
