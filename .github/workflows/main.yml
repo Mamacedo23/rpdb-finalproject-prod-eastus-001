@@ -13,7 +13,6 @@ jobs:
     env:
       DATABRICKS_HOST: ${{ secrets.DEV_DEPLOYMENT_TARGET_URL }}
       DATABRICKS_TOKEN: ${{ secrets.DEV_DEPLOYMENT_TARGET_TOKEN }}
-      REPO_PATH: /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/rpdb-finalproject-dev-eastus-001
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -23,13 +22,8 @@ jobs:
           python-version: 3.8
       - name: Set up Databricks CLI
         uses: databricks/setup-cli@main
-      - name: Extract branch name
-        id: extract_branch
-        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
-
       - name: Deploy Bundle (Dev)
-        run: |
-          databricks bundle deploy --target dev
+        run: databricks bundle deploy --target dev
 
   deploy-prod:
     needs: deploy-dev
@@ -38,7 +32,6 @@ jobs:
     env:
       DATABRICKS_HOST: ${{ secrets.PROD_DEPLOYMENT_TARGET_URL }}
       DATABRICKS_TOKEN: ${{ secrets.PROD_DEPLOYMENT_TARGET_TOKEN }}
-      REPO_PATH: /Workspace/Users/railgun@accelidol2gmail.onmicrosoft.com/folderrpdb-finalproject-prod-eastus-001
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
@@ -48,25 +41,5 @@ jobs:
           python-version: 3.8
       - name: Set up Databricks CLI
         uses: databricks/setup-cli@main
-      - name: Extract branch name
-        id: extract_branch_prod
-        run: echo "branch=$(echo ${GITHUB_REF#refs/heads/})" >> $GITHUB_OUTPUT
-      - name: Debug credentials
-        run: |
-          echo "HOST: $DATABRICKS_HOST"
-          databricks auth describe
-          
-      - name: Update Databricks Repo (Prod)
-        run: |
-          databricks repos update "${{ env.REPO_PATH }}" \
-            --branch "${{ steps.extract_branch_prod.outputs.branch }}"
-        env:
-          DATABRICKS_HOST: ${{ secrets.PROD_DEPLOYMENT_TARGET_URL }}
-          DATABRICKS_TOKEN: ${{ secrets.PROD_DEPLOYMENT_TARGET_TOKEN }}
-          
       - name: Deploy Bundle (Prod)
-        run: |
-          databricks bundle deploy --target prod
-        env:
-          DATABRICKS_HOST: ${{ secrets.PROD_DEPLOYMENT_TARGET_URL }}
-          DATABRICKS_TOKEN: ${{ secrets.PROD_DEPLOYMENT_TARGET_TOKEN }}
+        run: databricks bundle deploy --target prod
