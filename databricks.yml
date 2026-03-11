@@ -32,10 +32,6 @@ resources:
   jobs:
     pipeline_etl_compras:
       name: pipeline_etl_compras
-
-      schedule:
-        quartz_cron_expression: "0 0 8 * * ?"
-        timezone_id: America/Lima
         
       queue:
         enabled: true
